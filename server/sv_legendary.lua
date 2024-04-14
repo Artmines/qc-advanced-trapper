@@ -1,5 +1,5 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
-local huntedPlayers = {}
+local huntedPlayers = {}     --Updated Global
 
 for _, zone in ipairs(Config.HuntingZones) do
     RSGCore.Functions.CreateUseableItem(zone.bait, function(source)
