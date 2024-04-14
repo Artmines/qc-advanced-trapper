@@ -29,7 +29,7 @@ Config.PerfectCarcassMultiplier  = 3
 Config.LegendaryCarcassMultiplier  = 5
 Config.FeathersMultiplier  = 2
 -- pelt sell prices
-Config.PoorPeltPrice = math.random(10, 30)
+Config.PoorPeltPrice = math.random(10, 30)          --for decimal use the math.random decimal formal like so:   math.random() * (0.50 - 0.10) + 0.10
 Config.GoodPeltPrice = math.random(30, 60)
 Config.PerfectPeltPrice = math.random(60, 100)
 Config.LegendaryPeltPrice = math.random(100, 200)
