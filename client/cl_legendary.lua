@@ -5,8 +5,9 @@ local inHuntingZone = false
 local baitLocation = nil
 local spawnLocation = nil
 local animal = {}
+local baitProp = nil
 
--- Initialize lastHuntTimes table here
+
 local remainingCooldowns = {}
 
 function modelrequest( model )
@@ -44,6 +45,13 @@ AddEventHandler('qc-advanced-trapper:client:cooldownMessage', function(remaining
 end)
 
 ----------------------------------------  FUNCTIONS  ----------------------------------------------------------
+function DeleteBaitProp()
+    if baitProp ~= nil and DoesEntityExist(baitProp) then
+        DeleteEntity(baitProp)
+        baitProp = nil
+    end
+end
+
 
 CreateThread(function()
     for k=1, #Config.HuntingZones do
@@ -67,6 +75,7 @@ CreateThread(function()
                 local baitName = Config.HuntingZones[k].baitname
                 if Config.HuntingZones[k].enterzone then
                     RSGCore.Functions.Notify('You have left a hunting zone! Animal: ' .. animalName .. ' Bait: ' .. baitName, 'primary')
+                    DeleteBaitProp()
                 end
             end
         end)
@@ -79,6 +88,8 @@ CreateThread(function()
         end
     end
 end)
+
+
 
 -- spawn location
 local function getSpawnLoc()
@@ -100,8 +111,7 @@ end
 
 RegisterNetEvent('qc-advanced-trapper:server:useHuntingBait')
 AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
-    local playerServerId = GetPlayerServerId(PlayerId()) -- Get the player's server ID
-
+    local playerServerId = GetPlayerServerId(PlayerId()) 
     if inHuntingZone == true then
         local currentZone = nil
         for _, zone in pairs(Config.HuntingZones) do
@@ -110,16 +120,15 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
                 break
             end
         end
-
         if currentZone then
             local requiredBait = currentZone.bait
-            if item == requiredBait then -- Check if the used bait matches the required bait for the current zone
+            if item == requiredBait then 
                 local ped = PlayerPedId()
                 local playerId = PlayerId()
 
                 local zoneCooldown = remainingCooldowns[currentZone.name] or 0
                 local currentTime = GetGameTimer() / 1000
-                local elapsedTime = currentTime - (zoneCooldown - currentZone.timer * 60) -- Calculate elapsed time since last use
+                local elapsedTime = currentTime - (zoneCooldown - currentZone.timer * 60) 
 
                 -- Check zoneCooldown before using the bait
                 if elapsedTime < currentZone.timer * 60 then
@@ -129,7 +138,6 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
                     RSGCore.Functions.Notify('You need to wait ' .. remainingMinutes .. ' minutes and ' .. remainingSeconds .. ' seconds before using the bait again.', 'error')
                     return
                 end
-
                 baitLocation = GetEntityCoords(PlayerPedId())
                 spawnLocation = getSpawnLoc()
                 TaskStartScenarioInPlace(ped, `WORLD_HUMAN_CROUCH_INSPECT`, 0, true)
@@ -137,10 +145,21 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
                 ClearPedTasks(ped)
                 TriggerServerEvent('qc-advanced-trapper:server:removeItem', requiredBait)
 
-                -- Set the zoneCooldown for the current zone
+                local propModel = currentZone.baitprop 
+                if not propModel then
+                    print("No bait prop specified for this zone!")
+                    return
+                end
+                baitProp = CreateObject(GetHashKey(propModel), baitLocation.x, baitLocation.y, baitLocation.z, true, true, true)
+                SetEntityHeading(baitProp, GetEntityHeading(PlayerPedId()))
+                FreezeEntityPosition(baitProp, true)
+                local floor = PlaceEntityOnGroundProperly(baitProp, 0)
+                if not floor then
+                    print("Failed to place entity on the ground properly")
+                end
+
                 remainingCooldowns[currentZone.name] = currentTime + currentZone.timer * 60
                 TriggerServerEvent('qc-advanced-trapper:server:updateCooldown', currentZone.name, remainingCooldowns[currentZone.name])
-
                 RSGCore.Functions.Notify('Bait has been set, hide!', 'primary')
                 Wait(Config.HideTime)
                 local spawnanimal = currentZone.animal
@@ -152,11 +171,12 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
                 animal = CreatePed(model, spawnLocation.x, spawnLocation.y, spawnLocation.z, true, true, true)
                 Citizen.InvokeNative(0x283978A15512B2FE, animal, true)
                 Citizen.InvokeNative(0xDC19C288082E586E, animal, true, false)
-                TaskGoStraightToCoord(animal, baitLocation.x, baitLocation.y, baitLocation.z, 1.0, -1, 0.0, 0.0)
+                TaskGoToCoordAnyMeans(animal, baitLocation.x, baitLocation.y, baitLocation.z, 1.0, 0, 0, 786603, 0.0)
                 SetEntityMaxHealth(animal, currentZone.health)
                 SetEntityHealth(animal, currentZone.health)
                 SetModelAsNoLongerNeeded(spawnanimal)
 
+                -- Monitor if the animal reaches the bait
                 CreateThread(function()
                     local finished = false
                     while not IsPedDeadOrDying(animal) and not finished do
@@ -178,5 +198,17 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
         end
     else
         RSGCore.Functions.Notify('You can\'t use that outside a hunting zone!', 'error')
+    end
+end)
+
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() == resourceName then
+        if IsEntityAnObject(baitProp) then
+            DeleteEntity(baitProp)
+        end
+        if IsEntityAPed(animal) then
+            DeleteEntity(animal)
+        end
     end
 end)
