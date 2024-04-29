@@ -58,6 +58,7 @@ Config.HuntingZones = {
 		enterzone = true,
 		health     = 200.0,
 		timer     = 60,
+        baitprop   = 's_grizzlybait01x',
 	},
 	{
 		name       = 'huntingzone2',
@@ -68,12 +69,13 @@ Config.HuntingZones = {
         blipSprite = `blip_mp_deliver_target`,
         blipScale  = 0.2,
 		animal     = 'mp_a_c_beaver_01',
-		bait       = 'wheat',
+		bait       = 'carrot',
 		animalname  = 'Beaver',
-		baitname    = 'Wheat',
+		baitname    = 'carrot',
 		enterzone = true,
 		health     = 200.0,
 		timer     = 60,
+        baitprop   = 's_grizzlybait01x',
 	},
 	{
 		name       = 'huntingzone3',
@@ -84,12 +86,13 @@ Config.HuntingZones = {
         blipSprite = `blip_mp_deliver_target`,
         blipScale  = 0.2,
 		animal       = 'mp_a_c_cougar_01',
-		bait       = 'gmeat',
+		bait       = 'carrot',
 		animalname   = 'Cougar',
-		baitname       = 'Game Meat',
+		baitname       = 'carrot',
 		enterzone = true,
 		health     = 200.0,
 		timer     = 60,
+        baitprop   = 'p_shopbait01x',
 	},
 	{
 		name       = 'huntingzone4',
@@ -106,6 +109,7 @@ Config.HuntingZones = {
 		enterzone = true,
 		health     = 200.0,
 		timer     = 60,
+        baitprop   = 's_grizzlybait01x',
 	},
 	{
 		name       = 'huntingzone5',
@@ -122,6 +126,7 @@ Config.HuntingZones = {
 		enterzone = true,
 		health     = 200.0,
 		timer     = 60,
+        baitprop   = 's_grizzlybait01x',
 	},
 	{
 		name       = 'huntingzone6',
@@ -138,6 +143,7 @@ Config.HuntingZones = {
 		enterzone = true,
 		health     = 200.0,
 		timer     = 60,
+        baitprop   = 's_grizzlybait01x',
 	},
 		{
 		name       = 'huntingzone7',
@@ -154,9 +160,9 @@ Config.HuntingZones = {
 		enterzone = true,
 		health     = 300.0,
 		timer     = 60,
+        baitprop   = 's_grizzlybait01x',
 	},
 }
-
 
 Config.TrapperLocations = {
     -- trapper locations
