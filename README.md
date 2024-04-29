@@ -6,6 +6,7 @@ A remade version of rsg-trapperplus. Giving the ability for looting all creature
 - Configurable loot amount
 - Configurable Legendary Animal Spawn/Hunting Zones
 - Configurable Baits for Different Animals
+- Baits spawn props now!!
 
 # Quantum Project
 - discord : https://discord.gg/7JCFzfuRa5
