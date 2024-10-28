@@ -45,14 +45,15 @@ end)
 AddEventHandler('qc-advanced-trapper:client:openstore', function()
     local hour = GetClockHours()
     if (hour < Config.OpenTime) or (hour >= Config.CloseTime) then
-        lib.notify({
+--[[         lib.notify({
             title = 'Store Closed',
             description = 'come back after '..Config.OpenTime..'am',
             type = 'error',
             icon = 'fa-solid fa-shop',
             iconAnimation = 'shake',
             duration = 7000
-        })
+        }) ]]
+        TriggerEvent('rNotify:NotifyLeft', "Store Closed", "come back after "..Config.OpenTime.." am", "generic_textures", "tick", 4000)
         return
     end
     TriggerEvent('qc-advanced-trapper:client:menu')
@@ -149,34 +150,57 @@ end)
 -- process bar before sell pelts
 -------------------------------------------
 RegisterNetEvent('qc-advanced-trapper:client:sellpelts', function()
-    RSGCore.Functions.Progressbar('make-product', Lang:t('progressbar.checking_pelts'), Config.SellTime, false, true, {
-        disableMovement = true,
-        disableCarMovement = false,
-        disableMouse = false,
-        disableCombat = true,
-    }, {}, {}, {}, function() -- Done
+    exports['progressbar']:Progress({
+        name = 'make-product',
+        label = Lang:t('progressbar.checking_pelts'),
+        duration = Config.SellTime,
+        useWhileDead = false,
+        canCancel = true,
+        controlDisables = {
+            disableMovement = true,
+            disableCarMovement = false,
+            disableMouse = false,
+            disableCombat = true,
+        }
+    }, function() -- Done
         TriggerServerEvent('qc-advanced-trapper:server:sellpelts')
     end)
 end)
 
+
 RegisterNetEvent('qc-advanced-trapper:client:sellcarcass', function()
-    RSGCore.Functions.Progressbar('make-product', Lang:t('progressbar.checking_carcass'), Config.SellTime, false, true, {
-        disableMovement = true,
-        disableCarMovement = false,
-        disableMouse = false,
-        disableCombat = true,
-    }, {}, {}, {}, function() -- Done
+    exports['progressbar']:Progress({
+            name = 'make-product',
+            label = Lang:t('progressbar.checking_carcass'),
+            duration = Config.SellTime,
+            useWhileDead = false,
+            canCancel = true,
+            controlDisables = {
+                disableMovement = true,
+                disableCarMovement = false,
+                disableMouse = false,
+                disableCombat = true,
+            }
+        }, function() 
     TriggerServerEvent('qc-advanced-trapper:server:sellcarcass')
     end)
 end)
 
+
 RegisterNetEvent('qc-advanced-trapper:client:sellfeathers', function()
-    RSGCore.Functions.Progressbar('make-product', Lang:t('progressbar.checking_feathers'), Config.SellTime, false, true, {
-        disableMovement = true,
-        disableCarMovement = false,
-        disableMouse = false,
-        disableCombat = true,
-    }, {}, {}, {}, function() -- Done
+    exports['progressbar']:Progress({
+            name = 'make-product',
+            label = Lang:t('progressbar.checking_feathers'),
+            duration = Config.SellTime,
+            useWhileDead = false,
+            canCancel = true,
+            controlDisables = {
+                disableMovement = true,
+                disableCarMovement = false,
+                disableMouse = false,
+                disableCombat = true,
+            }
+        }, function() 
     TriggerServerEvent('qc-advanced-trapper:server:sellfeathers')
 
     end)
@@ -185,7 +209,7 @@ end)
 ----------------------------
 -- delete holding
 -------------------------------------------------------
-local function DeleteThis(holding)
+--[[ local function DeleteThis(holding)
     NetworkRequestControlOfEntity(holding)
     SetEntityAsMissionEntity(holding, true, true)
     Wait(100)
@@ -195,6 +219,30 @@ local function DeleteThis(holding)
     local holdingcheck = GetPedType(entitycheck)
     if holdingcheck == 0 then
         return true
+    else
+        return false
+    end
+end ]]
+
+local function DeleteThis(holding)
+    local timeout = 2000  --- 2 -second timeout
+    local startTime = GetGameTimer()
+    while not NetworkRequestControlOfEntity(holding) and (GetGameTimer() - startTime) < timeout do
+        NetworkRequestControlOfEntity(holding)
+        Wait(10)
+    end
+    if not NetworkHasControlOfEntity(holding) then
+        return false
+    end
+
+    SetEntityAsMissionEntity(holding, true, true)
+    Wait(100)
+
+    DeleteEntity(holding)
+    Wait(500)
+
+    if not DoesEntityExist(holding) then
+        return false
     else
         return false
     end
@@ -214,33 +262,25 @@ CreateThread(function()
             print("holding: "..tostring(holding))
             print("pelthash: "..tostring(pelthash))
         end
-        if holding ~= false then
+        if holding and IsEntityAttachedToEntity(holding, ped) then
             for i = 1, #Config.Pelts do
                 if Config.Pelts[i].pelthash and pelthash == Config.Pelts[i].pelthash then
-
                     local name = Config.Pelts[i].name
-
-                    -- PELTREWARD
                     local rewarditem1 = Config.Pelts[i].rewarditem1
-
-                    --local chance1 = math.random(1,100)
-                    -- CARCUS REWARDS
                     local rewarditem2 = Config.Pelts[i].rewarditem2
                     local rewarditem3 = Config.Pelts[i].rewarditem3
                     local rewarditem4 = Config.Pelts[i].rewarditem4
+                    local rewarditem5 = Config.Pelts[i].rewarditem5  -- FEATHER REWARDS
 
-                    -- FEATHER REWARDS
-                    --local rewarditem5 = Config.Pelts[i].rewarditem5
+                    if DeleteThis(holding) then
 
-                    local deleted = DeleteThis(holding)
-                    if deleted then
-                        --lib.notify({ title = name.. Lang:t('primary.stored'), type = 'inform', duration = 5000 })
                         TriggerServerEvent('qc-advanced-trapper:server:storepelt', rewarditem1) -- PELT REWARDS
                         TriggerServerEvent('qc-advanced-trapper:server:storecarcass', rewarditem2, rewarditem3, rewarditem4) -- PELT REWARDS
-                        --TriggerServerEvent('qc-advanced-trapper:server:storefeathers', rewarditem5) -- PELT REWARDS
+                        TriggerServerEvent('qc-advanced-trapper:server:storefeathers', rewarditem5) -- PELT REWARDS
+                        TriggerEvent('rNotify:Tip', source, name .. Lang:t('primary.stored'), 4000)
                         Wait(5000)
                     else
-                        --lib.notify({ title = Lang:t('error.something_went_wrong'), type = 'error', duration = 5000 })
+                        TriggerEvent('rNotify:Tip', source, Lang:t('error.something_went_wrong'), 4000)
                     end
                 elseif Config.Pelts[i].holding and GetEntityModel(holding) == Config.Pelts[i].holding then
                     local name = Config.Pelts[i].name
