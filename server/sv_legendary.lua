@@ -9,8 +9,6 @@ for _, zone in ipairs(Config.HuntingZones) do
 end
 
 
--- ... (Other CreateUseableItem calls and event handlers) ...
-
 RegisterServerEvent('qc-advanced-trapper:server:updateCooldown')
 AddEventHandler('qc-advanced-trapper:server:updateCooldown', function(zoneName, cooldown)
     local playerId = RSGCore.Functions.GetPlayer(source).PlayerData.citizenid
@@ -21,10 +19,6 @@ AddEventHandler('qc-advanced-trapper:server:updateCooldown', function(zoneName, 
 
     huntedPlayers[playerId][zoneName] = cooldown
 end)
-
--- ... (Other server-side code) ...
-
--- ... (Other event handlers) ...
 
 RegisterServerEvent('qc-advanced-trapper:server:removeItem')
 AddEventHandler("qc-advanced-trapper:server:removeItem", function(item)
