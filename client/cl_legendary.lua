@@ -41,7 +41,8 @@ AddEventHandler('qc-advanced-trapper:client:cooldownMessage', function(remaining
     local remainingSeconds = remainingCooldown % 60
     local totalMinutes = math.floor(totalCooldown / 60)
     local totalSeconds = totalCooldown % 60
-    RSGCore.Functions.Notify('You need to wait ' .. remainingMinutes .. ' minutes and ' .. remainingSeconds .. ' seconds before hunting in this zone again. (Total cooldown: ' .. totalMinutes .. ' minutes and ' .. totalSeconds .. ' seconds)', 'error')
+   -- RSGCore.Functions.Notify('You need to wait ' .. remainingMinutes .. ' minutes and ' .. remainingSeconds .. ' seconds before hunting in this zone again. (Total cooldown: ' .. totalMinutes .. ' minutes and ' .. totalSeconds .. ' seconds)', 'error')
+    TriggerEvent('rNotify:NotifyLeft', "You need to wait ".. remainingMinutes .. " minutes and ".. remainingSeconds .. " seconds before hunting in this zone again. (Total cooldown: " .. totalMinutes .. " minutes and " .. totalSeconds .. " seconds)", "Hunting Zones", "generic_textures", "tick", 4000)
 end)
 
 ----------------------------------------  FUNCTIONS  ----------------------------------------------------------
@@ -66,7 +67,8 @@ CreateThread(function()
                 local animal = Config.HuntingZones[k].animalname
                 local bait = Config.HuntingZones[k].baitname
                 if Config.HuntingZones[k].enterzone then
-                    RSGCore.Functions.Notify('You have entered a hunting zone! Animal: ' .. animal .. ' Bait: ' .. bait, 'primary')
+                    --RSGCore.Functions.Notify('You have entered a hunting zone! Animal: ' .. animal .. ' Bait: ' .. bait, 'primary')
+                    TriggerEvent('rNotify:NotifyLeft', "You have entered a hunting zone! Animal: " .. animal, "Bait: " ..bait, "generic_textures", "tick", 4000)
                 end
             else
                 inHuntingZone = false
@@ -74,7 +76,8 @@ CreateThread(function()
                 local animalName = Config.HuntingZones[k].animalname
                 local baitName = Config.HuntingZones[k].baitname
                 if Config.HuntingZones[k].enterzone then
-                    RSGCore.Functions.Notify('You have left a hunting zone! Animal: ' .. animalName .. ' Bait: ' .. baitName, 'primary')
+                    --Removed notification as on restarts it notifies all locations 
+                    TriggerEvent('rNotify:NotifyLeft', "You have left a hunting zone! Animal: " .. animalName, "Bait: " ..baitName, "generic_textures", "tick", 4000)
                     DeleteBaitProp()
                 end
             end
@@ -88,8 +91,6 @@ CreateThread(function()
         end
     end
 end)
-
-
 
 -- spawn location
 local function getSpawnLoc()
@@ -135,7 +136,8 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
                     local remainingCooldown = currentZone.timer * 60 - elapsedTime
                     local remainingMinutes = math.floor(remainingCooldown / 60)
                     local remainingSeconds = math.floor(remainingCooldown % 60)
-                    RSGCore.Functions.Notify('You need to wait ' .. remainingMinutes .. ' minutes and ' .. remainingSeconds .. ' seconds before using the bait again.', 'error')
+                    --RSGCore.Functions.Notify('You need to wait ' .. remainingMinutes .. ' minutes and ' .. remainingSeconds .. ' seconds before using the bait again.', 'error')
+                    TriggerEvent('rNotify:NotifyLeft', "Hunting Zones", "You need to wait :" .. remainingMinutes .. "minutes and" .. remainingSeconds .."seconds before using the bait again", "generic_textures", "tick", 4000)
                     return
                 end
                 baitLocation = GetEntityCoords(PlayerPedId())
@@ -160,7 +162,7 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
 
                 remainingCooldowns[currentZone.name] = currentTime + currentZone.timer * 60
                 TriggerServerEvent('qc-advanced-trapper:server:updateCooldown', currentZone.name, remainingCooldowns[currentZone.name])
-                RSGCore.Functions.Notify('Bait has been set, hide!', 'primary')
+                TriggerEvent('rNotify:NotifyLeft', "Bait has been set, hide and wait for the animal! ", "Hunting Zones", "generic_textures", "tick", 4000)
                 Wait(Config.HideTime)
                 local spawnanimal = currentZone.animal
                 local model = spawnanimal
@@ -191,13 +193,16 @@ AddEventHandler('qc-advanced-trapper:server:useHuntingBait', function(item)
                     end
                 end)
             else
-                RSGCore.Functions.Notify('You can\'t use this bait in this hunting zone!', 'error')
+                --RSGCore.Functions.Notify('You can\'t use this bait in this hunting zone!', 'error')
+                TriggerEvent('rNotify:NotifyLeft', "You can\'t use this bait in this hunting zone!", "Hunting Zones", "generic_textures", "tick", 4000)
             end
         else
-            RSGCore.Functions.Notify('Failed to find current hunting zone.', 'error')
+            --RSGCore.Functions.Notify('Failed to find current hunting zone.', 'error')
+            TriggerEvent('rNotify:NotifyLeft', "Failed to find current hunting zone.", "Hunting Zones", "generic_textures", "tick", 4000)
         end
     else
-        RSGCore.Functions.Notify('You can\'t use that outside a hunting zone!', 'error')
+        --RSGCore.Functions.Notify('You can\'t use that outside a hunting zone!', 'error')
+        TriggerEvent('rNotify:NotifyLeft', "You can\'t use that outside a hunting zone!", "Hunting Zones", "generic_textures", "tick", 4000)
     end
 end)
 
