@@ -8,6 +8,8 @@ A remade version of rsg-trapperplus. Giving the ability for looting all creature
 - Configurable Baits for Different Animals
 - Baits spawn props now!!
 
+# UPDATED RECENTLY FOR NEW RSG CORE
+
 # Quantum Project
 [Quantum Projects Discord](https://discord.gg/kJ8ZrGM8TS)
 
