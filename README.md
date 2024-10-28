@@ -9,7 +9,7 @@ A remade version of rsg-trapperplus. Giving the ability for looting all creature
 - Baits spawn props now!!
 
 # Quantum Project
-- discord : https://discord.gg/kJ8ZrGM8TS
+[Quantum Projects Discord](https://discord.gg/kJ8ZrGM8TS)
 
 # Important
 - before you use this resouce please ensure the following has been removed from your server
