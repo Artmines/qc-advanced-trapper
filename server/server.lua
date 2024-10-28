@@ -15,7 +15,9 @@ AddEventHandler('qc-advanced-trapper:server:storepelt', function(rewarditem1)
     local Player = RSGCore.Functions.GetPlayer(src)
     Player.Functions.AddItem(rewarditem1, 1)
     TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[rewarditem1], "add")
-    RSGCore.Functions.Notify(src, 'You received pelt items', 'success', 4000)
+    --RSGCore.Functions.Notify(src, 'You received pelt items', 'success', 4000)
+    TriggerClientEvent('rNotify:NotifyLeft', src, "Hunting", "You received: " ..RSGCore.Shared.Items[rewarditem1], "generic_textures", "tick", 4000)
+
 end)
 
 -- store carcass to inventory
@@ -32,7 +34,8 @@ AddEventHandler('qc-advanced-trapper:server:storecarcass', function(rewarditem2,
         if chance2 > 50 then -- chance variable
             Player.Functions.AddItem(rewarditem2, 1)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[rewarditem2], "add")
-            RSGCore.Functions.Notify(src, 'You received a animal pelt', 'success', 4000)
+            --RSGCore.Functions.Notify(src, 'You received a animal pelt', 'success', 4000)
+            TriggerClientEvent('rNotify:Tip', source, "You received a: " ..RSGCore.Shared.Items[rewarditem2], 4000)
         end
     end
 
@@ -40,7 +43,8 @@ AddEventHandler('qc-advanced-trapper:server:storecarcass', function(rewarditem2,
         if chance3 > 50 then -- chance variable
             Player.Functions.AddItem(rewarditem3, 1)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[rewarditem3], "add")
-            RSGCore.Functions.Notify(src, 'You received animal fat', 'success', 4000)
+            --RSGCore.Functions.Notify(src, 'You received animal fat', 'success', 4000)
+            TriggerClientEvent('rNotify:Tip', source, "You received a: " ..RSGCore.Shared.Items[rewarditem3], 4000)
         end
     end
 
@@ -48,7 +52,8 @@ AddEventHandler('qc-advanced-trapper:server:storecarcass', function(rewarditem2,
         if chance4 > 50 then -- chance variable
             Player.Functions.AddItem(rewarditem4, 1)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[rewarditem4], "add")
-            RSGCore.Functions.Notify(src, 'You received animal parts', 'success', 4000)
+            --RSGCore.Functions.Notify(src, 'You received animal parts', 'success', 4000)
+            TriggerClientEvent('rNotify:Tip', source, "You received a: " ..RSGCore.Shared.Items[rewarditem4], 4000)
         end
     end
 
@@ -56,7 +61,8 @@ AddEventHandler('qc-advanced-trapper:server:storecarcass', function(rewarditem2,
         if chance5 > 50 then -- chance variable --feathers
             Player.Functions.AddItem(rewarditem5, 1)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[rewarditem5], "add")
-            RSGCore.Functions.Notify(src, 'You received feather items', 'success', 4000)
+            --RSGCore.Functions.Notify(src, 'You received feather items', 'success', 4000)
+            TriggerClientEvent('rNotify:Tip', source, "You received a: " ..RSGCore.Shared.Items[rewarditem5], 4000)
         end
     end
 end)
@@ -575,6 +581,18 @@ AddEventHandler('qc-advanced-trapper:server:sellcarcass', function()
                     price = price + (Config.PoorCarcassPrice * Config.PoorCarcassMultiplier * Player.PlayerData.items[k].amount)
                     Player.Functions.RemoveItem("heart_chicken", Player.PlayerData.items[k].amount, k)
                     hascarcass = true
+                elseif Player.PlayerData.items[k].name == "small_bird_meat" then 
+                    price = price + (Config.PoorCarcassPrice * Config.PoorCarcassMultiplier * Player.PlayerData.items[k].amount)
+                    Player.Functions.RemoveItem("small_bird_meat", Player.PlayerData.items[k].amount, k)
+                    hascarcass = true
+                elseif Player.PlayerData.items[k].name == "large_bird_meat" then 
+                    price = price + (Config.PoorCarcassPrice * Config.PoorCarcassMultiplier * Player.PlayerData.items[k].amount)
+                    Player.Functions.RemoveItem("large_bird_meat", Player.PlayerData.items[k].amount, k)
+                    hascarcass = true
+                elseif Player.PlayerData.items[k].name == "bird_meat" then 
+                    price = price + (Config.PoorCarcassPrice * Config.PoorCarcassMultiplier * Player.PlayerData.items[k].amount)
+                    Player.Functions.RemoveItem("bird_meat", Player.PlayerData.items[k].amount, k)
+                    hascarcass = true
                     --Player.Functions.AddXp('main', xp4)
                 -- BEAK
                 elseif Player.PlayerData.items[k].name == "beak_bparrotf" then 
@@ -869,11 +887,15 @@ AddEventHandler('qc-advanced-trapper:server:sellcarcass', function()
             end
         end
         if hascarcass == true then
+            if DoesEntityExist(hascarcassEntity) then
+                DetachEntity(hascarcassEntity, true, true)
+                DeleteEntity(hascarcassEntity)
+            end
             Player.Functions.AddMoney(Config.PaymentType, price, "carcass-sold")
-            RSGCore.Functions.Notify(source, Lang:t('success.you_have_sold_all_your_carcass_for')..price, '')
+            TriggerClientEvent('rNotify:Tip', source, Lang:t('success.you_have_sold_all_your_carcass_for') ..price, 4000)
             hascarcass = false
         else
-            RSGCore.Functions.Notify(source, Lang:t('error.you_dont_have_any_carcass_to_sell'), '')
+            TriggerClientEvent('rNotify:Tip', source, Lang:t('error.you_dont_have_any_carcass_to_sell'), 4000)
         end
     end
 end)
