@@ -538,10 +538,12 @@ AddEventHandler('qc-advanced-trapper:server:sellpelts', function()
         end
         if haspelts == true then
             Player.Functions.AddMoney(Config.PaymentType, price, "pelts-sold")
-            RSGCore.Functions.Notify(source, Lang:t('success.you_have_sold_all_your_pelts_for')..price, 'success')
+            --RSGCore.Functions.Notify(source, Lang:t('success.you_have_sold_all_your_pelts_for')..price, 'success')
+            TriggerClientEvent('rNotify:Tip', source, Lang:t('success.you_have_sold_all_your_pelts_for')..price, 4000)
             haspelts = false
         else
-            RSGCore.Functions.Notify(source, Lang:t('error.you_dont_have_any_pelts_to_sell'), 'error')
+            --RSGCore.Functions.Notify(source, Lang:t('error.you_dont_have_any_pelts_to_sell'), 'error')
+            TriggerClientEvent('rNotify:Tip', source, Lang:t('error.you_dont_have_any_pelts_to_sell'), 4000)
         end
     end
 end)
@@ -887,14 +889,12 @@ AddEventHandler('qc-advanced-trapper:server:sellcarcass', function()
             end
         end
         if hascarcass == true then
-            if DoesEntityExist(hascarcassEntity) then
-                DetachEntity(hascarcassEntity, true, true)
-                DeleteEntity(hascarcassEntity)
-            end
             Player.Functions.AddMoney(Config.PaymentType, price, "carcass-sold")
+            --RSGCore.Functions.Notify(source, Lang:t('success.you_have_sold_all_your_carcass_for')..price, '')
             TriggerClientEvent('rNotify:Tip', source, Lang:t('success.you_have_sold_all_your_carcass_for') ..price, 4000)
             hascarcass = false
         else
+            --RSGCore.Functions.Notify(source, Lang:t('error.you_dont_have_any_carcass_to_sell'), '')
             TriggerClientEvent('rNotify:Tip', source, Lang:t('error.you_dont_have_any_carcass_to_sell'), 4000)
         end
     end
@@ -918,10 +918,12 @@ AddEventHandler('qc-advanced-trapper:server:sellfeathers', function()
         end
         if hasfeathers == true then
             Player.Functions.AddMoney(Config.PaymentType, price, "feathers-sold")
-            RSGCore.Functions.Notify(source, Lang:t('success.you_have_sold_all_your_feathers_for')..price, '')
+            --RSGCore.Functions.Notify(source, Lang:t('success.you_have_sold_all_your_feathers_for')..price, '')
+            TriggerClientEvent('rNotify:Tip', source, Lang:t('success.you_have_sold_all_your_feathers_for')..price, 4000)
             hasfeathers = false
         else
-            RSGCore.Functions.Notify(source, Lang:t('error.you_dont_have_any_feathers_to_sell'), '')
+            --RSGCore.Functions.Notify(source, Lang:t('error.you_dont_have_any_feathers_to_sell'), '')
+            TriggerClientEvent('rNotify:Tip', source, Lang:t('error.you_dont_have_any_feathers_to_sell'), 4000)
         end
     end
 end)
