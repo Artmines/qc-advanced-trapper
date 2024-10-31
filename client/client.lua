@@ -45,14 +45,6 @@ end)
 AddEventHandler('qc-advanced-trapper:client:openstore', function()
     local hour = GetClockHours()
     if (hour < Config.OpenTime) or (hour >= Config.CloseTime) then
---[[         lib.notify({
-            title = 'Store Closed',
-            description = 'come back after '..Config.OpenTime..'am',
-            type = 'error',
-            icon = 'fa-solid fa-shop',
-            iconAnimation = 'shake',
-            duration = 7000
-        }) ]]
         TriggerEvent('rNotify:NotifyLeft', "Store Closed", "come back after "..Config.OpenTime.." am", "generic_textures", "tick", 4000)
         return
     end
@@ -123,17 +115,6 @@ RegisterNetEvent('qc-advanced-trapper:client:menu', function()
             params = {
                 event = 'qc-advanced-trapper:client:sellfeathers',
                 isServer = false,
-            }
-        },
-        --------
-        {
-            header = Lang:t('menu.open_trapper_shop'),
-            txt = Lang:t('text.buy_items_from_the_trapper'),
-            icon = "fas fa-shopping-basket",
-            params = {
-                event = 'qc-advanced-trapper:client:OpenTrapperShop',
-                isServer = false,
-                args = {}
             }
         },
         {
@@ -208,22 +189,7 @@ end)
 
 ----------------------------
 -- delete holding
--------------------------------------------------------
---[[ local function DeleteThis(holding)
-    NetworkRequestControlOfEntity(holding)
-    SetEntityAsMissionEntity(holding, true, true)
-    Wait(100)
-    DeleteEntity(holding)
-    Wait(500)
-    local entitycheck = Citizen.InvokeNative(0xD806CD2A4F2C2996, PlayerPedId())
-    local holdingcheck = GetPedType(entitycheck)
-    if holdingcheck == 0 then
-        return true
-    else
-        return false
-    end
-end ]]
-
+---------------------------
 local function DeleteThis(holding)
     local timeout = 2000  --- 2 -second timeout
     local startTime = GetGameTimer()
@@ -234,13 +200,10 @@ local function DeleteThis(holding)
     if not NetworkHasControlOfEntity(holding) then
         return false
     end
-
     SetEntityAsMissionEntity(holding, true, true)
     Wait(100)
-
     DeleteEntity(holding)
     Wait(500)
-
     if not DoesEntityExist(holding) then
         return false
     else
@@ -258,55 +221,52 @@ CreateThread(function()
         local holding = Citizen.InvokeNative(0xD806CD2A4F2C2996, ped)
         local pelthash = Citizen.InvokeNative(0x31FEF6A20F00B963, holding)
         if Config.Debug then
-            print("entity: ".. tostring(GetEntityModel(holding)))
-            print("holding: "..tostring(holding))
-            print("pelthash: "..tostring(pelthash))
+            print("entity model:", tostring(GetEntityModel(holding)))
+            print("holding entity:", tostring(holding))
+            print("pelthash:", tostring(pelthash))
         end
-        if holding and IsEntityAttachedToEntity(holding, ped) then
+        if holding and holding ~= false then
+            print("Holding entity detected:", GetEntityModel(holding))
             for i = 1, #Config.Pelts do
-                if Config.Pelts[i].pelthash and pelthash == Config.Pelts[i].pelthash then
-                    local name = Config.Pelts[i].name
-                    local rewarditem1 = Config.Pelts[i].rewarditem1
-                    local rewarditem2 = Config.Pelts[i].rewarditem2
-                    local rewarditem3 = Config.Pelts[i].rewarditem3
-                    local rewarditem4 = Config.Pelts[i].rewarditem4
-                    local rewarditem5 = Config.Pelts[i].rewarditem5  -- FEATHER REWARDS
-
-                    if DeleteThis(holding) then
-
-                        TriggerServerEvent('qc-advanced-trapper:server:storepelt', rewarditem1) -- PELT REWARDS
-                        TriggerServerEvent('qc-advanced-trapper:server:storecarcass', rewarditem2, rewarditem3, rewarditem4) -- PELT REWARDS
-                        TriggerServerEvent('qc-advanced-trapper:server:storefeathers', rewarditem5) -- PELT REWARDS
-                        TriggerEvent('rNotify:Tip', source, name .. Lang:t('primary.stored'), 4000)
+                local peltData = Config.Pelts[i]
+                if peltData.pelthash and pelthash == peltData.pelthash then
+                    local name = peltData.name
+                    local rewarditem1 = peltData.rewarditem1
+                    local rewarditem2 = peltData.rewarditem2
+                    local rewarditem3 = peltData.rewarditem3
+                    local rewarditem4 = peltData.rewarditem4
+                    local deleted = false
+                    if DoesEntityExist(holding) then
+                        deleted = DeleteEntity(holding)
+                        print("Entity deletion result:", deleted)
+                    else
+                        print("Entity does not exist or cannot be deleted")
+                    end
+                    if deleted then
+                        TriggerServerEvent('qc-advanced-trapper:server:storepelt', rewarditem1)
+                        TriggerServerEvent('qc-advanced-trapper:server:storecarcass', rewarditem2, rewarditem3, rewarditem4)
+                        TriggerEvent('rNotify:Tip', name .. Lang:t('primary.stored'), 4000)
                         Wait(5000)
                     else
-                        TriggerEvent('rNotify:Tip', source, Lang:t('error.something_went_wrong'), 4000)
+                        TriggerEvent('rNotify:Tip', Lang:t('error.something_went_wrong'), 4000)
                     end
                 elseif Config.Pelts[i].holding and GetEntityModel(holding) == Config.Pelts[i].holding then
                     local name = Config.Pelts[i].name
-
-                    -- PELTREWARD
                     local rewarditem1 = Config.Pelts[i].rewarditem1
-
-                    --local chance1 = math.random(1,100)
-                    -- CARCUS REWARDS
                     local rewarditem2 = Config.Pelts[i].rewarditem2
                     local rewarditem3 = Config.Pelts[i].rewarditem3
                     local rewarditem4 = Config.Pelts[i].rewarditem4
-
-                    -- FEATHER REWARDS
-                    --local rewarditem5 = Config.Pelts[i].rewarditem5
-
-                    --lib.notify({ title = Config.Pelts[i].name.. Lang:t('primary.stored'), type = 'inform', duration = 5000 })
                     Wait(5000)
                     TriggerServerEvent('qc-advanced-trapper:server:storepelt', rewarditem1) -- PELT REWARDS
                     TriggerServerEvent('qc-advanced-trapper:server:storecarcass', rewarditem2, rewarditem3, rewarditem4) -- PELT REWARDS
-                    --TriggerServerEvent('qc-advanced-trapper:server:storefeathers', rewarditem5) -- PELT REWARDS
+                    TriggerEvent('rNotify:Tip', name .. Lang:t('primary.stored'), 4000)
                 end
             end
         end
     end
 end)
+
+
 -------------------------------------------
 -- CHECKS MODEL AFTER EVENT AND TRIGGERS SERVER ADDITEM EVENT
 -------------------------------------------
